@@ -155,38 +155,67 @@ BACKGROUND_IMAGES = [
 
 # Enemigos
 ENEMY_TYPES = {
-    "Basic": {
-        "image_folder": "assets/images/characters/robot",
-        "idle_frames": 10, # Asumiendo 10 frames para Idle
-        "run_frames": 8, # Corregido a 8 frames para Run
-        "attack_frames": 4, # Corregido a 4 frames para Attack (Shoot)
-        "attack_animation_key": "Shoot", # Añadido para Basic
-        "health": 1,
-        "speed": 2,
+    "ZOMBIE_MALE": {
+        "image_folder": "assets/images/characters/zombiemale",
+        "idle_frames": 15,
+        "run_frames": 10,
+        "attack_frames": 8,
+        "run_animation_key": "Walk",
+        "attack_animation_key": "Attack",
+        "health": 5,
+        "speed": 1.5,
         "size": ENEMY_SIZE,
-        "color_palette": "normal" # Para futuras variaciones de color
+        "movement_pattern": "straight",
+        "color_palette": "normal"
     },
-    "Tough": {
+    "ZOMBIE_GIRL": {
         "image_folder": "assets/images/characters/zombieguirl",
         "idle_frames": 15, 
         "run_frames": 10, 
         "attack_frames": 8, 
-        "run_animation_key": "Walk", # Añadido para zombieguirl
-        "attack_animation_key": "Attack", # Añadido para zombieguirl
+        "run_animation_key": "Walk",
+        "attack_animation_key": "Attack",
         "health": 3,
-        "speed": 1.5,
-        "size": ENEMY_SIZE + 32,
-        "color_palette": "greenish" # Para futuras variaciones de color
-    },
-    "Fast": {
-        "image_folder": "assets/images/characters/robot",
-        "idle_frames": 10, 
-        "run_frames": 8, # Corregido a 8 frames para Run
-        "attack_frames": 4, # Corregido a 4 frames para Attack (Shoot)
-        "attack_animation_key": "Shoot", # Añadido para Fast
-        "health": 1,
-        "speed": 3.5,
-        "size": ENEMY_SIZE - 16,
-        "color_palette": "reddish" # Para futuras variaciones de color
+        "speed": 2.5,
+        "size": ENEMY_SIZE,
+        "movement_pattern": "zigzag",
+        "color_palette": "normal"
     }
 }
+
+# Rarezas de enemigos
+ENEMY_RARITIES = {
+    "NORMAL": {
+        "health_multiplier": 1.0,
+        "speed_multiplier": 1.0,
+        "score_multiplier": 1.0,
+        "visual_effect": None
+    },
+    "RARE": {
+        "health_multiplier": 1.5,
+        "speed_multiplier": 1.2,
+        "score_multiplier": 1.5,
+        "visual_effect": "glow_blue" # Ejemplo de efecto visual
+    },
+    "ELITE": {
+        "health_multiplier": 2.5,
+        "speed_multiplier": 1.5,
+        "score_multiplier": 2.5,
+        "visual_effect": "glow_red"
+    },
+    "LEGENDARY": {
+        "health_multiplier": 5.0,
+        "speed_multiplier": 2.0,
+        "score_multiplier": 5.0,
+        "visual_effect": "aura_gold"
+    }
+}
+
+# Probabilidades de rareza (ajustar según el balance deseado)
+RARITY_PROBABILITIES = {
+    "NORMAL": 0.70,
+    "RARE": 0.20,
+    "ELITE": 0.08,
+    "LEGENDARY": 0.02
+}
+

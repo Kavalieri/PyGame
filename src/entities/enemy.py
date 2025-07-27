@@ -6,21 +6,36 @@ from entities.projectile import Projectile
 from utils.image_loader import load_image, load_animation_frames
 
 class Enemy:
-    def __init__(self, x, y, enemy_type, logger=None):
+    def __init__(self, x, y, enemy_type, rarity="NORMAL", logger=None):
         self.x = x
         self.y = y
         self.logger = logger
         self.enemy_type = enemy_type
+        self.rarity = rarity
 
-        stats = ENEMY_TYPES.get(enemy_type, ENEMY_TYPES["Basic"])
+        # Obtener estadísticas base del tipo de enemigo
+        stats = ENEMY_TYPES.get(enemy_type, ENEMY_TYPES["ZOMBIE_MALE"]) # Default a ZOMBIE_MALE
         self.size = stats["size"]
-        self.speed = stats["speed"]
-        self.health = stats["health"]
+        self.base_speed = stats["speed"]
+        self.base_health = stats["health"]
         self.can_shoot = stats.get("can_shoot", False)
         self.shoot_delay = stats.get("shoot_delay", 2.0)
         self.last_shot_time = time.time()
+        self.movement_pattern = stats["movement_pattern"]
+
+        # Aplicar multiplicadores de rareza
+        rarity_stats = ENEMY_RARITIES.get(rarity, ENEMY_RARITIES["NORMAL"])
+        self.speed = self.base_speed * rarity_stats["speed_multiplier"]
+        self.health = int(self.base_health * rarity_stats["health_multiplier"])
+        self.score_value = int(10 * rarity_stats["score_multiplier"]) # Valor de puntuación base 10
+        self.visual_effect = rarity_stats["visual_effect"]
 
         self.collision_box = pygame.Rect(self.x, self.y, self.size, self.size)
+
+        # Para movimiento zigzag
+        self.zigzag_amplitude = 50 # Qué tan lejos se mueve horizontalmente
+        self.zigzag_speed_multiplier = 0.05 # Velocidad del zigzag
+        self.zigzag_direction = 1 # 1 para derecha, -1 para izquierda
 
         # Animación
         image_folder = stats["image_folder"]
@@ -48,10 +63,18 @@ class Enemy:
             self.image = self.animation_frames["idle"][0] # Establecer el primer frame como imagen inicial
 
         if self.logger:
-            self.logger.log_debug(f"Enemigo {enemy_type} creado en posición x={self.x}, y={self.y}, tamaño={self.size}, velocidad={self.speed}, salud={self.health}, can_shoot={self.can_shoot}")
+            self.logger.log_debug(f"Enemigo {enemy_type} ({rarity}) creado en posición x={self.x}, y={self.y}, tamaño={self.size}, velocidad={self.speed}, salud={self.health}, can_shoot={self.can_shoot}")
 
     def move(self):
         self.y += self.speed
+
+        if self.movement_pattern == "zigzag":
+            # Mover horizontalmente en zigzag
+            self.x += self.zigzag_direction * self.speed * self.zigzag_speed_multiplier
+            # Cambiar dirección si alcanza los límites
+            if self.x <= 0 or self.x >= SCREEN_WIDTH - self.size:
+                self.zigzag_direction *= -1
+
         self.collision_box.topleft = (self.x, self.y)
 
         # Actualizar animación de movimiento
@@ -95,6 +118,14 @@ class Enemy:
         # Dibujar el sprite actual del enemigo
         scaled_image = pygame.transform.scale(self.image, (self.size, self.size))
         screen.blit(scaled_image, (self.x, self.y))
+
+        # Dibujar efecto visual de rareza (placeholder)
+        if self.visual_effect == "glow_blue":
+            pygame.draw.rect(screen, BLUE, self.collision_box, 3) # Borde azul
+        elif self.visual_effect == "glow_red":
+            pygame.draw.rect(screen, RED, self.collision_box, 3) # Borde rojo
+        elif self.visual_effect == "aura_gold":
+            pygame.draw.circle(screen, YELLOW, self.collision_box.center, self.size // 2 + 10, 3) # Aura dorada
 
     def is_off_screen(self, screen_height):
         return self.y > screen_height

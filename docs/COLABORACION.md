@@ -1,45 +1,32 @@
-# Directrices de Colaboración para PyGame
+# Guía de Colaboración
 
-Este documento detalla las directrices y convenciones a seguir para todos los colaboradores del proyecto PyGame. El objetivo es mantener la consistencia, la calidad del código y facilitar el trabajo en equipo.
+¡Gracias por tu interés en contribuir a este proyecto!
 
-## Idioma
-Todo el código, comentarios, documentación y comunicación dentro del proyecto debe realizarse en **español**.
+Para asegurar una colaboración fluida y mantener la calidad del código, por favor, sigue estas directrices:
 
-## Convenciones de Código
+## 1. Estilo de Código
+- **Idioma**: Todo el código, comentarios y documentación deben estar en español.
+- **Nomenclatura**: Utiliza nombres de variables, funciones y clases descriptivos y en español (ej. `velocidad_jugador`, `calcular_danio`).
+- **Indentación**: Usa siempre tabulaciones para la indentación.
+- **Comentarios**: Comenta el código cuando sea necesario para explicar la lógica compleja o decisiones de diseño. Evita comentarios obvios.
 
-### Estilo y Formato
-*   **Indentación**: Utiliza siempre **tabulaciones** para la indentación del código.
-*   **Nomenclatura**: Sigue la nomenclatura existente en el proyecto. Utiliza nombres de variables, funciones, clases y módulos en español, descriptivos y coherentes (ej. `generacion_enemigos`, `jugador`, `calcular_puntuacion`).
-*   **Consistencia**: Mimica el estilo, la estructura, las elecciones de framework y los patrones arquitectónicos del código existente.
+## 2. Estructura del Proyecto
+- **Modularidad**: El proyecto está diseñado para ser modular. Intenta mantener las nuevas funcionalidades encapsuladas y bien separadas.
+- **Reutilización**: Antes de escribir nuevo código, verifica si existe alguna función o clase que pueda ser reutilizada.
 
-### Modularidad y Reutilización
-*   **Modularidad**: El sistema debe ser modular, íntegro y mantenible. Si una función o script se vuelve demasiado complejo, propón modularizarlo o refactorizarlo.
-*   **Reutilización**: Prioriza la reutilización de lógica ya implementada. Evita la duplicación de código.
-*   **Objetivo de Funciones**: Cada función debe tener un objetivo claro y definido.
+## 3. Proceso de Contribución
+1.  **Clona el repositorio**: `git clone [URL_DEL_REPOSITORIO]`
+2.  **Crea una nueva rama**: Para cada nueva característica o corrección de error, crea una rama separada con un nombre descriptivo (ej. `feature/menu-pausa`, `fix/bug-colision`).
+3.  **Implementa tus cambios**: Realiza tus modificaciones siguiendo las convenciones de código.
+4.  **Prueba tus cambios**: Asegúrate de que tus cambios no introduzcan nuevos errores y que la funcionalidad esperada trabaje correctamente.
+5.  **Documenta tus cambios**: Si añades nuevas funciones o modificas significativamente las existentes, actualiza la documentación relevante.
+6.  **Realiza un commit claro**: Escribe mensajes de commit descriptivos que expliquen qué cambios has hecho y por qué.
+7.  **Envía tus cambios**: `git push origin tu-rama`
+8.  **Abre un Pull Request (PR)**: Describe tus cambios en el PR y espera la revisión.
 
-### Documentación
-*   **Comentarios**: Añade comentarios de código de forma concisa. Enfócate en *por qué* se hace algo, especialmente para lógica compleja, más que en *qué* se hace.
-*   **Cabeceras de Archivo**: Todos los scripts deben tener una cabecera descriptiva que incluya el nombre del script, autor, fecha y una breve descripción de su propósito.
-*   **Documentación de Funciones**: Cada función debe tener una descripción breve y clara de su propósito, sus parámetros y lo que retorna.
+## 4. Consideraciones Adicionales
+- **Rutas Absolutas**: Siempre que sea posible, utiliza rutas absolutas para evitar problemas de referencia, especialmente al empaquetar el juego.
+- **Gestión de Errores**: Implementa un manejo de errores robusto para asegurar la estabilidad de la aplicación.
+- **Actualización de Dependencias**: Si añades nuevas dependencias, asegúrate de incluirlas en `requirements.txt` y de mantener las existentes actualizadas.
 
-### Gestión de Cambios
-*   **Cambios Justificados**: Solo aplica cambios solicitados o justificados y comprendidos. No introduzcas nuevas tecnologías sin agotar las actuales.
-*   **Evitar Cambios Innecesarios**: Evita cambios de estilo, nombre de variables, funciones, clases, módulos o archivos sin una justificación clara y consensuada.
-*   **Eliminación de Obsoleto**: Si se añaden nuevos elementos que sustituyen a los viejos, elimina lo obsoleto para evitar duplicidades.
-*   **Revisión y Refactorización**: Revisa y refactoriza el código regularmente para mejorar la calidad y el rendimiento.
-
-### Robustez y Mantenimiento
-*   **Gestión de Errores**: Implementa una gestión de errores adecuada para asegurar la robustez del sistema.
-*   **Dependencias**: Documenta todas las dependencias en `requirements.txt` y mantenlas actualizadas.
-*   **Imports**: Verifica que todos los imports (`from ...`) estén correctamente referenciados.
-
-## Estructura del Proyecto
-*   **Carpetas**: Mantén una estructura de carpetas clara y coherente.
-*   **Punto de Entrada**: `main.py` será el punto de entrada principal del proyecto.
-
-## Proceso de Desarrollo
-*   **Iteración**: Itera sobre el código existente antes de crear desde cero.
-*   **Soluciones Simples**: Prioriza soluciones simples y seguras.
-*   **Verificación**: Antes de finalizar una tarea, asegúrate de que los cambios se integren de forma natural con la estructura del proyecto y que no introduzcan nuevos errores.
-
-Al seguir estas directrices, aseguramos un entorno de desarrollo colaborativo y eficiente para el proyecto PyGame.
+¡Gracias por tu colaboración!

@@ -2,6 +2,7 @@ import pygame
 import sys
 from game_loop import GameLoop
 from ui.menu import Menu
+from ui.pause_menu import PauseMenu
 from managers.logger import Logger
 from managers.save_manager import SaveManager
 from constants import *
@@ -54,18 +55,33 @@ def main():
         elif action == "continue": # Si se guardó el juego, continuar con la partida actual
             game_started = True
 
+    paused = False # Nueva bandera para el estado de pausa
+    pause_menu = PauseMenu(screen, logger) # Instancia del menú de pausa
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p or event.key == pygame.K_ESCAPE:
+                    paused = not paused # Alternar estado de pausa
+            if not paused and event.type == pygame.MOUSEBUTTONDOWN:
                 game.player.shoot(event.pos[0], event.pos[1])
 
-        # Actualizar lógica del juego
-        game.update()
+        if not paused:
+            # Actualizar lógica del juego
+            game.update()
 
-        # Dibujar en pantalla
-        game.draw()
+            # Dibujar en pantalla
+            game.draw()
+        else:
+            # Si está pausado, mostrar el menú de pausa
+            action = pause_menu.show()
+            if action == "resume":
+                paused = False
+            elif action == "main_menu":
+                running = False
+                game_started = False # Volver al menú principal
 
         clock.tick(FPS)
 

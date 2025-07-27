@@ -98,7 +98,7 @@ class GameLoop:
                 if enemy.collision_box.colliderect(pygame.Rect(projectile.x, projectile.y, projectile.size, projectile.size)):
                     if enemy.take_damage(1): # El proyectil hace 1 de daño
                         self.enemies.remove(enemy)
-                        self.enemies_destroyed += 1
+                        self.enemies_destroyed += enemy.score_value
                         self.sound_manager.play_sound("explosion") # Reproducir sonido de explosión
                         # Posibilidad de soltar power-up
                         if random.random() < 0.2: # 20% de probabilidad

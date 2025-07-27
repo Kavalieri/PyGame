@@ -23,10 +23,16 @@ class EnemyGenerator:
 
         # Generar enemigos periódicamente
         if time.time() - self.last_spawn_time >= self.spawn_interval:
-            enemy_type_name = random.choice(list(ENEMY_TYPES.keys()))
-            enemy = Enemy(random.randint(0, SCREEN_WIDTH - ENEMY_SIZE), 0, enemy_type=enemy_type_name, logger=self.logger)
+            # Seleccionar tipo de enemigo aleatoriamente
+            enemy_type_name = random.choice(["ZOMBIE_MALE", "ZOMBIE_GIRL"])
+            
+            # Seleccionar rareza del enemigo
+            rarity_choices = [rarity for rarity, prob in RARITY_PROBABILITIES.items() for _ in range(int(prob * 100))]
+            enemy_rarity = random.choice(rarity_choices)
+
+            enemy = Enemy(random.randint(0, SCREEN_WIDTH - ENEMY_SIZE), 0, enemy_type=enemy_type_name, rarity=enemy_rarity, logger=self.logger)
             new_enemies.append(enemy)
-            self.logger.log_debug(f"Enemigo generado en posición x={enemy.x}, y={enemy.y}")
+            self.logger.log_debug(f"Enemigo generado: Tipo={enemy_type_name}, Rareza={enemy_rarity}, Posición=({enemy.x}, {enemy.y})")
             self.last_spawn_time = time.time()
 
         return new_enemies
