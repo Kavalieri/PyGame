@@ -1,4 +1,16 @@
 import pygame
+import os
+import sys
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 class SoundManager:
     def __init__(self, logger=None):
@@ -6,12 +18,14 @@ class SoundManager:
         self.logger = logger
         self.sounds = {}
         try:
-            self.sounds["shoot"] = pygame.mixer.Sound("assets/sounds/shoot.wav")
+            shoot_sound_path = resource_path("assets/sounds/shoot.wav")
+            print(f"Intentando cargar sonido: {shoot_sound_path}")
+            self.sounds["shoot"] = pygame.mixer.Sound(shoot_sound_path)
         except pygame.error as e:
             if self.logger:
                 self.logger.log_error(f"Error loading shoot.wav: {e}")
         try:
-            self.sounds["explosion"] = pygame.mixer.Sound("assets/sounds/explosion.wav")
+            self.sounds["explosion"] = pygame.mixer.Sound(resource_path("assets/sounds/explosion.wav"))
         except pygame.error as e:
             if self.logger:
                 self.logger.log_error(f"Error loading explosion.wav: {e}")
@@ -23,7 +37,7 @@ class SoundManager:
 
     def play_music(self, path, loop=-1):
         try:
-            pygame.mixer.music.load("assets/sounds/background_music.mp3")
+            pygame.mixer.music.load(resource_path("assets/sounds/background_music.mp3"))
             pygame.mixer.music.play(loop)
             self.music_playing = True
         except pygame.error as e:

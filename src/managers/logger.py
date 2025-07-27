@@ -16,5 +16,8 @@ class Logger:
     def log_error(self, error):
         self.log(f"ERROR: {error}")
 
+    def log_warning(self, warning_message):
+        self.log(f"WARNING: {warning_message}")
+
     def log_debug(self, debug_message):
         self.log(f"DEBUG: {debug_message}")

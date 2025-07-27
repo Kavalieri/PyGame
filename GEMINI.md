@@ -4,7 +4,7 @@
 Este es un juego 2D de disparos desarrollado con Pygame. El objetivo es destruir enemigos que caen desde la parte superior de la pantalla.
 
 ## Idioma
-El idioma principal del código, los comentarios y la comunicación es el español. Mantén la consistencia.
+El idioma principal del código, los comentarios y la comunicación es en español. Mantén la consistencia.
 
 ## Dependencias
 Para instalar las dependencias, utiliza el archivo `requirements.txt`:
@@ -15,7 +15,7 @@ pip install -r requirements.txt
 ## Cómo Ejecutar el Juego
 El punto de entrada de la aplicación es `main.py`. Para ejecutar el juego, usa el siguiente comando:
 ```bash
-python main.py
+python src/main.py
 ```
 
 ## Convenciones de Código
@@ -58,3 +58,7 @@ Revisa y refactoriza código regularmente para mejorar calidad y rendimiento
 Toda función debe tener un objetivo claro y definido
 Sigue una nomenclatura coherente y descriptiva en todo el proyecto
 Realiza los cambios necesarios para cumplir con las instrucciones e implementa las mejoras solicitadas
+Cuando lancemos comandos por consola para realizar copias o lecturas masivas de ficheros debemos asegurarnos de utilizar las opciones más robustas evitando que los comandos fallen y perder con ello el tiempo. Usar un comando por línea y asegurarse de que el formato y mandatos son correctos.
+Adelantate a los errores de replace asegurándote de que el formato y rutas se indican correctamente cuando reemplaces contenido de ficheros. Se muy preciso con el old_string y new_string. Lee bien los ficheros apra asegurarte de que obtienes el contenido exacto y luego constriyes la llamada replace.
+Trabajamos en el sistema operativo Windows 11, con Visual Studio Code. Ten esto en cuenta cuando vayas a lanzar comandos por consola para usar los más adecuados para este sistema. Si conoces algún elemento descargable que nos pueda facilitar la tarea, propondrás su descarga y utilización.
+Usar rutas absolutas para evitar problemas al empaquetar en exe o con las referencias entre elementos.

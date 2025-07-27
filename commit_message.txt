@@ -1,0 +1,16 @@
+feat: Refactorización de la estructura de directorios y limpieza de código
+
+Se ha reorganizado el proyecto para mejorar la modularidad y la limpieza del código.
+
+- Se ha implementado una nueva estructura de directorios:
+    - `src/core`: Contiene la lógica principal del juego (game_loop, main, constants).
+    - `src/entities`: Contiene las clases de entidades del juego (player, enemy, enemies, projectile, powerups).
+    - `src/managers`: Contiene las clases de gestión (sound_manager, enemy_generator, logger).
+    - `src/ui`: Contiene las clases de interfaz de usuario (hud, menu).
+    - `assets/sounds`: Contiene los archivos de sonido.
+    - `tools`: Contiene scripts de utilidad (install_dependencies.py).
+    - Se han creado directorios vacíos para `docs` y `tests` para futura expansión.
+- Se han eliminado archivos redundantes y obsoletos (`entities.py`, `game_logic.py`, `game.py`).
+- Se han actualizado todas las importaciones en el código para reflejar la nueva estructura de directorios.
+- Se ha añadido la constante `YELLOW` a `constants.py`.
+- Se ha mejorado el manejo de errores de carga de sonido en `sound_manager.py`.

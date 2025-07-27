@@ -1,5 +1,5 @@
 import pygame
-from src.core.constants import *
+from constants import *
 
 class PowerUp(pygame.sprite.Sprite):
     def __init__(self, x, y, type, logger=None):
