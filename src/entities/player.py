@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+"""
+Entidad Jugador para PyGame Shooter
+Autor: Kava
+Fecha: 2024-12-19
+Descripción: Lógica, animaciones y gestión de power-ups del jugador principal.
+"""
 import pygame
 from entities.projectile import Projectile
 import sys
@@ -5,6 +12,7 @@ import time
 import math
 from constants import *
 from utils.image_loader import load_image, load_animation_frames
+from utils.advanced_logger import get_logger
 import os
 
 class Player:
@@ -13,7 +21,7 @@ class Player:
         self.y = y
         self.size = PLAYER_SIZE
         self.projectiles = []
-        self.logger = logger
+        self.logger = logger or get_logger("PyGame")
         self.sound_manager = sound_manager
         self.collision_box = pygame.Rect(self.x, self.y, self.size, self.size)
 
@@ -62,24 +70,21 @@ class Player:
         
         # Asegurarse de que haya al menos un frame para cada animación
         if not self.animation_frames["idle"]:
-            self.logger.log_error(f"No se encontraron frames para la animación Idle de {character_type}")
+            self.logger.log_error(f"No se encontraron frames para la animación Idle de {character_type}", "player")
             # Cargar un placeholder o salir
             self.image = pygame.Surface((self.size, self.size))
             self.image.fill(RED) # Placeholder rojo
         else:
             self.image = self.animation_frames["idle"][0] # Establecer el primer frame como imagen inicial
 
-        if self.logger:
-            self.logger.log_event(f"Personaje seleccionado: {character_type} con vidas={self.lives}, velocidad={self.speed}, shot_delay={self.shot_delay}")
+        self.logger.log_event(f"Personaje seleccionado: {character_type} con vidas={self.lives}, velocidad={self.speed}, shot_delay={self.shot_delay}", "player")
 
     def set_attack_type(self, attack_type):
         if attack_type in ATTACK_TYPES:
             self.attack_type = attack_type
-            if self.logger:
-                self.logger.log_event(f"Tipo de ataque cambiado a: {attack_type}")
+            self.logger.log_event(f"Tipo de ataque cambiado a: {attack_type}", "player")
         else:
-            if self.logger:
-                self.logger.log_error(f"Tipo de ataque desconocido: {attack_type}")
+            self.logger.log_error(f"Tipo de ataque desconocido: {attack_type}", "player")
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -112,13 +117,11 @@ class Player:
         if self.is_fast_shooting and time.time() - self.fast_shot_timer > self.fast_shot_duration:
             self.is_fast_shooting = False
             self.shot_delay = self.original_shot_delay # Reset to normal
-            if self.logger:
-                self.logger.log_event("Power-up de disparo rápido terminado.")
+            self.logger.log_event("Power-up de disparo rápido terminado.", "player")
 
         if self.has_shield and time.time() - self.shield_timer > self.shield_duration:
             self.has_shield = False
-            if self.logger:
-                self.logger.log_event("Power-up de escudo terminado.")
+            self.logger.log_event("Power-up de escudo terminado.", "player")
 
     def shoot(self, target_x, target_y):
         current_time = time.time()
@@ -140,8 +143,7 @@ class Player:
                                     logger=self.logger)
             self.projectiles.append(projectile)
 
-            if self.logger:
-                self.logger.log_debug(f"Jugador disparó proyectil hacia x={target_x}, y={target_y} con ataque {self.attack_type}")
+            self.logger.log_debug(f"Jugador disparó proyectil hacia x={target_x}, y={target_y} con ataque {self.attack_type}", "player")
             if self.sound_manager:
                 self.sound_manager.play_sound("shoot")
             self.last_shot_time = current_time
@@ -165,34 +167,29 @@ class Player:
             self.shield_lives -= 1
             if self.shield_lives == 0:
                 self.has_shield = False
-            if self.logger:
-                self.logger.log_event("Escudo absorbió el daño. Corazón azul eliminado.")
+            self.logger.log_event("Escudo absorbió el daño. Corazón azul eliminado.", "player")
             return
         if self.lives > 0:
             self.lives -= amount
-            if self.logger:
-                self.logger.log_event(f"Jugador pierde vida. Vidas restantes: {self.lives}")
+            self.logger.log_event(f"Jugador pierde vida. Vidas restantes: {self.lives}", "player")
 
     def activate_powerup(self, powerup_type):
         if powerup_type == "health":
             if self.lives < 3:
                 self.lives += 1
-                if self.logger:
-                    self.logger.log_event("Power-up de salud recogido! Vida añadida.")
+                self.logger.log_event("Power-up de salud recogido! Vida añadida.", "player")
         elif powerup_type == "fast_shot":
             self.is_fast_shooting = True
             self.fast_shot_timer = time.time()
             self.shot_delay = 0.1 # Faster shooting
-            if self.logger:
-                self.logger.log_event("Power-up de disparo rápido activado!")
+            self.logger.log_event("Power-up de disparo rápido activado!", "player")
         elif powerup_type == "shield":
             self.has_shield = True
             if not hasattr(self, 'shield_lives'):
                 self.shield_lives = 0
             self.shield_lives += 1
             self.shield_timer = time.time()
-            if self.logger:
-                self.logger.log_event("Power-up de escudo activado! Corazón azul añadido.")
+            self.logger.log_event("Power-up de escudo activado! Corazón azul añadido.", "player")
 
     def get_upgrade_level(self, upgrade_key):
         """Devuelve el nivel actual de una mejora específica."""

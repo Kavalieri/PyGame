@@ -1,15 +1,23 @@
+#!/usr/bin/env python3
+"""
+Entidad Enemigo para PyGame Shooter
+Autor: Kava
+Fecha: 2024-12-19
+Descripción: Lógica, animaciones y barra de vida de los enemigos del juego.
+"""
 import pygame
 import random
 import time
 from constants import *
 from entities.projectile import Projectile
 from utils.image_loader import load_image, load_animation_frames
+from utils.advanced_logger import get_logger
 
 class Enemy:
     def __init__(self, x, y, enemy_type, rarity="NORMAL", logger=None):
         self.x = x
         self.y = y
-        self.logger = logger
+        self.logger = logger or get_logger("PyGame")
         self.enemy_type = enemy_type
         self.rarity = rarity
 
@@ -68,104 +76,105 @@ class Enemy:
         # Asignar un frame inicial como imagen base
         self.image = self.animation_frames["idle"][0] if self.animation_frames["idle"] else None
 
-        if self.logger:
-            self.logger.log_debug(f"Enemigo {enemy_type} ({rarity}) creado en posición x={self.x}, y={self.y}, tamaño={self.size}, velocidad={self.speed}, salud={self.health}, can_shoot={self.can_shoot}")
-            self.logger.log_debug(f"Health frame image: {self.health_frame_image}, Health bar image: {self.health_bar_image}")
+        self.logger.log_debug(f"Enemigo {enemy_type} ({rarity}) creado en posición x={self.x}, y={self.y}, tamaño={self.size}, velocidad={self.speed}, salud={self.health}, can_shoot={self.can_shoot}", "enemy")
+        self.logger.log_debug(f"Health frame image: {self.health_frame_image}, Health bar image: {self.health_bar_image}", "enemy")
 
     def move(self):
-        self.y += self.speed
-
-        if self.movement_pattern == "zigzag":
-            # Mover horizontalmente en zigzag
+        """Mueve el enemigo según su patrón de movimiento."""
+        if self.movement_pattern == "straight":
+            self.y += self.speed
+        elif self.movement_pattern == "zigzag":
+            # Movimiento zigzag horizontal mientras baja
+            self.y += self.speed
             self.x += self.zigzag_direction * self.speed * self.zigzag_speed_multiplier
-            # Cambiar dirección si alcanza los límites
+            
+            # Cambiar dirección cuando llega a los bordes
             if self.x <= 0 or self.x >= SCREEN_WIDTH - self.size:
                 self.zigzag_direction *= -1
 
+        # Actualizar caja de colisión
         self.collision_box.topleft = (self.x, self.y)
 
-        # Actualizar animación de movimiento
-        if self.speed > 0: # Si se está moviendo hacia abajo
-            self.current_animation = "walk" if "walk" in self.animation_frames else "run"
-        else:
-            self.current_animation = "idle"
-
+    def update(self):
+        """Actualiza el estado del enemigo."""
+        self.move()
+        
+        # Actualizar animación
         current_time = time.time()
         if current_time - self.last_frame_update > self.animation_speed:
-            if self.animation_frames[self.current_animation]: # Añadir esta verificación
+            if self.current_animation in self.animation_frames and self.animation_frames[self.current_animation]:
                 self.current_frame = (self.current_frame + 1) % len(self.animation_frames[self.current_animation])
                 self.image = self.animation_frames[self.current_animation][self.current_frame]
-            else:
-                # Si no hay frames, usar una imagen de placeholder o el último frame conocido
-                if self.logger:
-                    self.logger.log_warning(f"No hay frames para la animación {self.current_animation} del enemigo {self.enemy_type}. Usando placeholder.")
-                self.image = pygame.Surface((self.size, self.size))
-                self.image.fill(RED) # Placeholder rojo
             self.last_frame_update = current_time
 
-        if self.logger:
-            self.logger.log_debug(f"Enemigo movido a posición x={self.x}, y={self.y}")
-
     def shoot(self, target_x, target_y):
+        """Dispara un proyectil hacia el objetivo."""
+        if not self.can_shoot:
+            return None
+            
         current_time = time.time()
-        if self.can_shoot and current_time - self.last_shot_time > self.shoot_delay:
-            self.current_animation = "attack" # Cambiar a animación de ataque
-            self.current_frame = 0 # Reiniciar animación de ataque
-
-            # Usar un sprite para el proyectil del enemigo, si es necesario
-            projectile = Projectile(self.x + self.size // 2, self.y + self.size, target_x, target_y, 
-                                    color=RED, is_enemy=True, logger=self.logger) # Usar color por defecto o definir sprite
+        if current_time - self.last_shot_time > self.shoot_delay:
+            projectile = Projectile(self.x + self.size // 2, self.y + self.size, 
+                                    target_x, target_y, size=10, speed=3, 
+                                    image_path="assets/objects/proyectiles/aranazo.png", 
+                                    piercing=False, logger=self.logger)
             self.last_shot_time = current_time
-            if self.logger:
-                self.logger.log_debug(f"Enemigo disparó proyectil hacia x={target_x}, y={target_y}")
+            self.logger.log_debug(f"Enemigo {self.enemy_type} dispara proyectil hacia ({target_x}, {target_y})", "enemy")
             return projectile
         return None
 
     def draw(self, screen):
-        # Dibujar el sprite actual del enemigo
-        scaled_image = pygame.transform.scale(self.image, (self.size, self.size))
-        screen.blit(scaled_image, (self.x, self.y))
+        """Dibuja el enemigo y su barra de vida."""
+        if self.image:
+            scaled_image = pygame.transform.scale(self.image, (self.size, self.size))
+            screen.blit(scaled_image, (self.x, self.y))
+        else:
+            # Fallback si no hay imagen
+            pygame.draw.rect(screen, RED, (self.x, self.y, self.size, self.size))
 
         # Dibujar barra de vida
         self.draw_health_bar(screen)
 
     def draw_health_bar(self, screen):
-        # Dibujar el marco de la barra de vida
-        frame_width = self.health_frame_image.get_width()
-        frame_height = self.health_frame_image.get_height()
-        frame_x = self.x
-        frame_y = self.y - frame_height - 5
-        screen.blit(self.health_frame_image, (frame_x, frame_y))
+        """Dibuja la barra de vida del enemigo."""
+        bar_width = 50
+        bar_height = 8
+        bar_x = self.x + (self.size - bar_width) // 2
+        bar_y = self.y - 15
 
-        # Dibujar la barra de vida con tamaño fijo del marco, solo recortando porcentualmente
-        bar_width = self.health_bar_image.get_width()
-        bar_height = self.health_bar_image.get_height()
-        health_ratio = max(0, self.health / self.base_health)
-        bar_draw_width = int(bar_width * health_ratio)
-        
-        # La barra siempre se dibuja en la posición del marco, solo se recorta el ancho
-        if bar_draw_width > 0 and bar_draw_width <= bar_width:
-            bar_image = self.health_bar_image.subsurface((0, 0, bar_draw_width, bar_height))
-            # Centrar la barra dentro del marco
-            bar_x = frame_x + (frame_width - bar_width) // 2
-            bar_y = frame_y + (frame_height - bar_height) // 2
-            screen.blit(bar_image, (bar_x, bar_y))
+        # Dibujar marco de la barra de vida
+        screen.blit(self.health_frame_image, (bar_x, bar_y))
+
+        # Calcular el ancho de la barra de vida basado en la salud actual
+        max_health = self.base_health * ENEMY_RARITIES.get(self.rarity, ENEMY_RARITIES["NORMAL"])["health_multiplier"]
+        health_ratio = max(0, self.health / max_health)
+        current_bar_width = int(bar_width * health_ratio)
+
+        if current_bar_width > 0:
+            # Crear una superficie para la barra de vida
+            health_surface = pygame.Surface((current_bar_width, bar_height))
+            health_surface.set_colorkey((0, 0, 0))  # Hacer transparente el fondo negro
+            
+            # Usar subsurface para obtener solo la parte necesaria de la imagen de la barra
+            bar_rect = pygame.Rect(0, 0, current_bar_width, bar_height)
+            health_bar_subsurface = self.health_bar_image.subsurface(bar_rect)
+            health_surface.blit(health_bar_subsurface, (0, 0))
+            
+            # Dibujar la barra de vida
+            screen.blit(health_surface, (bar_x, bar_y))
 
     def is_off_screen(self, screen_height):
         return self.y > screen_height
 
     def take_damage(self, damage):
+        """Reduce la salud del enemigo."""
         self.health -= damage
-        if self.logger:
-            self.logger.log_debug(f"Enemigo en x={self.x}, y={self.y} recibió {damage} de daño. Salud restante: {self.health}")
-
-        # Mostrar daño recibido
-        font = pygame.font.Font(None, 24)
-        damage_text = font.render(f"-{damage}", True, (255, 0, 0))
-        screen = pygame.display.get_surface()
-        screen.blit(damage_text, (self.x + self.size // 2, self.y - 20))
-
-        return self.health <= 0
+        self.logger.log_debug(f"Enemigo {self.enemy_type} recibe {damage} de daño. Salud restante: {self.health}", "enemy")
+        
+        if self.health <= 0:
+            self.logger.log_event(f"Enemigo {self.enemy_type} ({self.rarity}) eliminado", "enemy")
+            return True
+        return False
 
     def on_defeat(self):
         # Mostrar puntos sumados

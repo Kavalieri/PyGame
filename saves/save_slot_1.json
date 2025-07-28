@@ -1,20 +1,11 @@
 {
-    "player": {
-        "x": 296,
-        "y": 1024,
-        "lives": 4,
-        "is_fast_shooting": false,
-        "fast_shot_timer": 0,
-        "has_shield": false,
-        "shield_timer": 0,
-        "last_shot_time": 0,
-        "shot_delay": 0.6,
-        "character_type": "Kava",
-        "projectile_speed": 10
+    "player_name": "TestPlayer",
+    "level": 5,
+    "score": 1000,
+    "upgrade_levels": {
+        "speed": 2,
+        "lives": 1
     },
-    "enemies": [],
-    "powerups": [],
-    "enemies_destroyed": 0,
-    "current_level": 1,
-    "level_start_time": 1753700471.1262739
+    "upgrade_points": 10,
+    "points_spent": 5
 }
