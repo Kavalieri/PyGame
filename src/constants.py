@@ -1,8 +1,8 @@
 # Constantes del juego
 
 # Pantalla
-SCREEN_WIDTH = 1920
-SCREEN_HEIGHT = 1080
+SCREEN_WIDTH = 720
+SCREEN_HEIGHT = 1280
 FPS = 60
 
 # Colores
@@ -12,6 +12,13 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+CYAN = (0, 255, 255) # Añadido para el HUD
+
+# Fuentes y UI
+FONT_SIZE = 36
+FONT_COLOR = WHITE
+BUTTON_COLOR = (50, 50, 50) # Gris oscuro
+HOVER_COLOR = (100, 100, 100) # Gris más claro
 
 # Jugador
 PLAYER_SIZE = 128 # Aumentado para que se vea más grande

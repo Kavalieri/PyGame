@@ -24,6 +24,7 @@ class Player:
         self.has_shield = False
         self.shield_timer = 0
         self.shield_duration = 10 # seconds
+        self.shield_lives = 0  # Inicializar vidas del escudo
         
         # Animación - Inicializar antes de set_character_stats
         self.animation_frames = {}
@@ -159,22 +160,25 @@ class Player:
             projectile.draw(screen)
 
     def lose_life(self, amount=1):
-        """Reduce las vidas del jugador."""
-        if self.has_shield:
-            self.has_shield = False
+        """Reduce las vidas del jugador o elimina corazones azules si hay escudo."""
+        if self.has_shield and self.shield_lives > 0:
+            self.shield_lives -= 1
+            if self.shield_lives == 0:
+                self.has_shield = False
             if self.logger:
-                self.logger.log_event("Escudo absorbió el daño.")
+                self.logger.log_event("Escudo absorbió el daño. Corazón azul eliminado.")
             return
-
-        self.lives -= amount
-        if self.logger:
-            self.logger.log_event(f"Jugador pierde vida. Vidas restantes: {self.lives}")
+        if self.lives > 0:
+            self.lives -= amount
+            if self.logger:
+                self.logger.log_event(f"Jugador pierde vida. Vidas restantes: {self.lives}")
 
     def activate_powerup(self, powerup_type):
         if powerup_type == "health":
-            self.lives += 1
-            if self.logger:
-                self.logger.log_event("Power-up de salud recogido!")
+            if self.lives < 3:
+                self.lives += 1
+                if self.logger:
+                    self.logger.log_event("Power-up de salud recogido! Vida añadida.")
         elif powerup_type == "fast_shot":
             self.is_fast_shooting = True
             self.fast_shot_timer = time.time()
@@ -183,6 +187,29 @@ class Player:
                 self.logger.log_event("Power-up de disparo rápido activado!")
         elif powerup_type == "shield":
             self.has_shield = True
+            if not hasattr(self, 'shield_lives'):
+                self.shield_lives = 0
+            self.shield_lives += 1
             self.shield_timer = time.time()
             if self.logger:
-                self.logger.log_event("Power-up de escudo activado!")
+                self.logger.log_event("Power-up de escudo activado! Corazón azul añadido.")
+
+    def get_upgrade_level(self, upgrade_key):
+        """Devuelve el nivel actual de una mejora específica."""
+        if hasattr(self, "upgrades") and upgrade_key in self.upgrades:
+            return self.upgrades[upgrade_key].get("level", 0)
+        return 0
+
+    def draw_lives(self, screen):
+        # Dibujar corazones rojos para las vidas
+        heart_x_offset = 10
+        for i in range(self.lives):
+            heart_image = pygame.image.load("assets/ui/Hearts_Red_1.png")
+            screen.blit(heart_image, (heart_x_offset, 10))
+            heart_x_offset += heart_image.get_width() + 5
+
+        # Dibujar corazones azules para el escudo
+        for i in range(self.shield_lives):
+            shield_image = pygame.image.load("assets/ui/Hearts_Blue_1.png")
+            screen.blit(shield_image, (heart_x_offset, 10))
+            heart_x_offset += shield_image.get_width() + 5

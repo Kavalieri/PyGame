@@ -1,16 +1,70 @@
-feat: Refactorización de la estructura de directorios y limpieza de código
+feat: Implementación completa del proyecto base funcional
 
-Se ha reorganizado el proyecto para mejorar la modularidad y la limpieza del código.
+## 🎮 Sistema de Juego Completo
+- Bucle de juego robusto desde selección de personaje hasta fin de partida
+- Sistema de pausa dinámico con teclas P/ESC
+- Pantalla de fin de juego con puntuación final y opciones de continuar
+- Eliminación de bloqueos y pausas inesperadas en el flujo del juego
 
-- Se ha implementado una nueva estructura de directorios:
-    - `src/core`: Contiene la lógica principal del juego (game_loop, main, constants).
-    - `src/entities`: Contiene las clases de entidades del juego (player, enemy, enemies, projectile, powerups).
-    - `src/managers`: Contiene las clases de gestión (sound_manager, enemy_generator, logger).
-    - `src/ui`: Contiene las clases de interfaz de usuario (hud, menu).
-    - `assets/sounds`: Contiene los archivos de sonido.
-    - `tools`: Contiene scripts de utilidad (install_dependencies.py).
-    - Se han creado directorios vacíos para `docs` y `tests` para futura expansión.
-- Se han eliminado archivos redundantes y obsoletos (`entities.py`, `game_logic.py`, `game.py`).
-- Se han actualizado todas las importaciones en el código para reflejar la nueva estructura de directorios.
-- Se ha añadido la constante `YELLOW` a `constants.py`.
-- Se ha mejorado el manejo de errores de carga de sonido en `sound_manager.py`.
+## ❤️ Sistema de Vida y Escudo Rediseñado
+- Corazones rojos del jugador: 3 corazones que se vacían de derecha a izquierda
+- Corazones azules de escudo: Se añaden a la derecha y desaparecen completamente al recibir daño
+- Lógica de daño mejorada: Prioridad a corazones azules antes que rojos
+- Visualización correcta de corazones completos y vacíos
+
+## 🩸 Barras de Vida de Enemigos Mejoradas
+- Migración a assets Health_03 para mejor calidad visual
+- Escalado porcentual correcto: barras mantienen tamaño del marco
+- Colores por rareza: Roja (normal), Naranja (raro), Azul (élite/legendario)
+- Recorte visual sin deformación de la barra de vida
+
+## ⚡ Sistema de Mejoras Integrado
+- Menú de mejoras con HUD de puntos disponibles y gastados
+- Botón de reset para reiniciar mejoras y recuperar puntos
+- Niveles de mejora visibles en cada opción
+- Aplicación correcta de efectos: velocidad, vidas, cadencia, proyectiles
+- Ataques especiales: disparo de ráfaga y penetrante
+
+## 🎭 Selección de Personajes
+- 3 personajes únicos: Kava (guerrero), Sara (sacerdote), Guiral (mago)
+- Estadísticas diferenciadas: velocidad, vidas, cadencia de disparo
+- Animaciones completas: idle, run, walk, attack
+- Descripción detallada de cada personaje
+
+## 🎯 Enemigos y Combate
+- Sistema de rarezas: Normal, Raro, Élite, Legendario
+- Patrones de movimiento diferenciados: recto y zigzag
+- Barras de vida visuales según rareza
+- Generación progresiva de enemigos por nivel
+
+## 💾 Sistema de Guardado
+- 3 slots de guardado con estado completo
+- Persistencia de puntuación, nivel, mejoras y estado del jugador
+- Menús de guardado y carga funcionales
+
+## 🛠️ Mejoras Técnicas
+- Código limpio sin errores de Ruff
+- Assets optimizados sin warnings de libpng
+- Sistema de logging completo para debug
+- Arquitectura modular y mantenible
+- UI consistente y responsive
+
+## 🎨 Interfaz de Usuario
+- Menús base reutilizables con navegación por teclado y ratón
+- HUD integrado con corazones y información de juego
+- Feedback visual en compras y errores
+- Layout mejorado sin solapamientos
+
+## 📁 Estructura del Proyecto
+- Organización modular en carpetas: entities/, managers/, ui/, utils/
+- Separación clara de responsabilidades
+- Código documentado y comentado en español
+- Convenciones de nomenclatura consistentes
+
+## 🚀 Preparación para Empaquetado
+- Script de limpieza de assets ICC para optimización
+- Dependencias documentadas en requirements.txt
+- Punto de entrada claro en src/main.py
+- README actualizado con todas las funcionalidades
+
+Este commit representa la finalización del proyecto base funcional con todas las características esenciales implementadas y probadas. El juego es completamente jugable desde el inicio hasta el fin de partida, con sistemas robustos de mejora, guardado y progresión.

@@ -6,10 +6,35 @@ Este es un emocionante juego 2D de disparos desarrollado con Pygame. Sumérgete 
 
 ## 🎮 Características Destacadas
 
-*   **Sistema de Pausa Dinámico**: Pulsa `P` o `ESC` en cualquier momento para pausar el juego y acceder a opciones como reanudar o volver al menú principal.
-*   **Enemigos Variados y con Rareza**: Enfrenta a dos tipos de zombies, `Zombiemale` (movimiento recto) y `Zombiegirl` (movimiento en zigzag), cada uno con estadísticas y comportamientos únicos. Además, prepárate para encontrar versiones `Raras`, `Élite` y `Legendarias` con atributos mejorados y efectos visuales distintivos.
-*   **Sistema de Mejoras Progresivo**: Gana puntos al destruir enemigos y úsalos para desbloquear poderosas mejoras que te ayudarán a sobrevivir a oleadas cada vez más desafiantes.
-*   **Guardado y Carga de Partidas**: Guarda tu progreso en cualquier momento y retoma la acción justo donde la dejaste.
+### **Sistema de Juego Completo**
+*   **Bucle de juego robusto**: Desde selección de personaje hasta fin de partida sin interrupciones
+*   **Sistema de pausa dinámico**: Pulsa `P` o `ESC` en cualquier momento para pausar el juego
+*   **Pantalla de fin de juego**: Muestra puntuación final y opciones de continuar
+
+### **Sistema de Vida y Escudo**
+*   **Corazones del jugador**: 3 corazones rojos que se vacían de derecha a izquierda
+*   **Corazones azules de escudo**: Se añaden a la derecha y desaparecen completamente al recibir daño
+*   **Barras de vida de enemigos**: Escalado porcentual con assets Health_03 según rareza
+
+### **Enemigos y Combate**
+*   **Enemigos variados**: Zombies masculinos y femeninos con diferentes patrones de movimiento
+*   **Sistema de rarezas**: Normal, Raro, Élite y Legendario con estadísticas mejoradas
+*   **Barras de vida visuales**: Roja (normal), Naranja (raro), Azul (élite/legendario)
+
+### **Sistema de Mejoras Integrado**
+*   **Menú de mejoras**: Aparece al finalizar cada nivel con puntos disponibles y gastados
+*   **Mejoras progresivas**: Velocidad, vidas, cadencia de disparo, velocidad de proyectiles
+*   **Ataques especiales**: Disparo de ráfaga y disparo penetrante
+*   **Sistema de reset**: Permite reiniciar mejoras y recuperar puntos gastados
+
+### **Personajes y Progresión**
+*   **Selección de personajes**: Kava (guerrero), Sara (sacerdote), Guiral (mago)
+*   **Estadísticas únicas**: Cada personaje tiene velocidad, vidas y cadencia de disparo diferentes
+*   **Animaciones completas**: Idle, run, walk, attack para cada personaje
+
+### **Sistema de Guardado**
+*   **Guardado y carga**: 3 slots de guardado con estado completo del juego
+*   **Persistencia de datos**: Puntuación, nivel, mejoras y estado del jugador
 
 ## 🌐 Idioma
 
@@ -31,10 +56,51 @@ El punto de entrada de la aplicación es `main.py`. Para iniciar tu aventura, ej
 python src/main.py
 ```
 
+## 🎯 Controles del Juego
+
+*   **Movimiento**: `A` (izquierda) y `D` (derecha)
+*   **Disparo**: Clic izquierdo del ratón
+*   **Pausa**: `P` o `ESC`
+*   **Navegación de menús**: Flechas direccionales + `Enter` o clic del ratón
+
+## 🏗️ Arquitectura del Proyecto
+
+```
+src/
+├── main.py                 # Punto de entrada principal
+├── game_loop.py           # Bucle principal del juego
+├── constants.py           # Constantes y configuraciones
+├── entities/              # Entidades del juego
+│   ├── player.py         # Jugador y lógica de personajes
+│   ├── enemy.py          # Enemigos y barras de vida
+│   ├── projectile.py     # Proyectiles del jugador y enemigos
+│   └── powerups.py       # Power-ups y efectos
+├── managers/              # Gestores del sistema
+│   ├── enemy_generator.py # Generación de enemigos
+│   ├── sound_manager.py   # Gestión de audio
+│   ├── save_manager.py    # Sistema de guardado
+│   └── logger.py         # Sistema de logging
+├── ui/                    # Interfaz de usuario
+│   ├── hud.py            # HUD y corazones
+│   └── menus/            # Menús del juego
+│       ├── base_menu.py  # Menú base reutilizable
+│       ├── menu.py       # Menú principal
+│       ├── upgrade_menu.py # Menú de mejoras
+│       └── character_selection_menu.py # Selección de personaje
+└── utils/                 # Utilidades
+    └── image_loader.py   # Cargador de imágenes y animaciones
+```
+
 ## 🤝 Contribución y Colaboración
 
 ¡Nos encantaría contar con tu ayuda para mejorar este proyecto! Para mantener la consistencia y la calidad del código, y para entender cómo puedes contribuir, por favor, consulta nuestra guía detallada de colaboración:
 
 ➡️ [Guía de Colaboración](docs/COLABORACION.md)
+
+## 📝 Notas de Desarrollo
+
+* **Versión**: Proyecto base funcional
+* **Estado**: Jugable completo con todas las funcionalidades básicas
+* **Próximas mejoras**: Refinamiento visual, balance de juego y nuevas características
 
 ---

@@ -1,7 +1,7 @@
 {
     "player": {
-        "x": 896,
-        "y": 824,
+        "x": 296,
+        "y": 1024,
         "lives": 4,
         "is_fast_shooting": false,
         "fast_shot_timer": 0,
@@ -16,5 +16,5 @@
     "powerups": [],
     "enemies_destroyed": 0,
     "current_level": 1,
-    "level_start_time": 1753644733.4472573
+    "level_start_time": 1753700471.1262739
 }

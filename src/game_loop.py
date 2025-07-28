@@ -6,10 +6,10 @@ from managers.enemy_generator import EnemyGenerator
 from ui.hud import HUD
 from entities.player import Player
 from entities.enemy import Enemy
-from constants import *
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT, PLAYER_SIZE, BACKGROUND_IMAGES, LEVELS
 from managers.sound_manager import SoundManager
 from entities.powerups import PowerUp
-from ui.upgrade_menu import UpgradeMenu # Importar el menú de mejoras
+from ui.menus.upgrade_menu import UpgradeMenu # Importar el menú de mejoras
 from utils.image_loader import load_image
 
 
@@ -28,6 +28,7 @@ class GameLoop:
         self.ground_line = SCREEN_HEIGHT  # Línea del suelo
         self.enemy_generator = EnemyGenerator(logger=self.logger)
         self.powerups = [] # Lista para almacenar los power-ups
+        self.showing_upgrade_menu = False
         
         # Cargar fondo de pantalla
         self.background_image = load_image(random.choice(BACKGROUND_IMAGES))
@@ -46,6 +47,9 @@ class GameLoop:
         self.level_start_time = time.time()
         self.level_duration = LEVELS[self.current_level]["duration"]
         self.logger.log_event(f"Nivel {self.current_level} reiniciado.")
+        # Generar la primera oleada de enemigos inmediatamente tras el reset
+        new_enemies = self.enemy_generator.generate_enemies(self.enemies_destroyed)
+        self.enemies.extend(new_enemies)
 
     def update(self):
         if self.game_over:
@@ -55,7 +59,8 @@ class GameLoop:
         
         # Lógica de niveles
         elapsed_level_time = time.time() - self.level_start_time
-        if elapsed_level_time > self.level_duration:
+        if elapsed_level_time > self.level_duration and not self.showing_upgrade_menu:
+            self.showing_upgrade_menu = True
             self.current_level += 1
             if self.current_level > len(LEVELS):
                 self.logger.log_event("¡Juego completado!")
@@ -67,6 +72,7 @@ class GameLoop:
                 upgrade_menu = UpgradeMenu(self.screen, self.player, self.logger, self.enemies_destroyed) # enemies_destroyed como puntuación
                 upgrade_menu.show()
                 self.reset_level()
+                self.showing_upgrade_menu = False
 
         # Generar enemigos si es necesario
         new_enemies = self.enemy_generator.generate_enemies(self.enemies_destroyed)
@@ -161,7 +167,7 @@ class GameLoop:
             active_powerups["Disparo Rápido"] = self.player.fast_shot_duration - (time.time() - self.player.fast_shot_timer)
         if self.player.has_shield:
             active_powerups["Escudo"] = self.player.shield_duration - (time.time() - self.player.shield_timer)
-        self.hud.draw(self.player.lives, self.enemies_destroyed, self.current_level, max(0, self.level_duration - (time.time() - self.level_start_time)), active_powerups)
+        self.hud.draw(self.player.lives, 1 if self.player.has_shield else 0, self.enemies_destroyed, self.current_level, max(0, self.level_duration - (time.time() - self.level_start_time)), active_powerups)
         pygame.display.flip()
 
     def handle_event(self, event):

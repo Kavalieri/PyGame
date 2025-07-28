@@ -1,8 +1,8 @@
 import pygame
 import sys
 from game_loop import GameLoop
-from ui.menu import Menu
-from ui.pause_menu import PauseMenu
+from ui.menus.menu import Menu
+from ui.menus.pause_menu import PauseMenu
 from managers.logger import Logger
 from managers.save_manager import SaveManager
 from constants import *
@@ -81,7 +81,10 @@ def main():
                 paused = False
             elif action == "main_menu":
                 running = False
-                game_started = False # Volver al menú principal
+                game_started = False # Regresar al menú principal
+            elif action == "exit":
+                running = False
+                game_started = True # Salir del juego
 
         clock.tick(FPS)
 
