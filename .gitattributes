@@ -1,7 +1,0 @@
-# Forzar LF para todos los archivos de código fuente y texto
-*.py text eol=lf
-*.md text eol=lf
-*.txt text eol=lf
-*.json text eol=lf
-*.yml text eol=lf
-*.yaml text eol=lf
