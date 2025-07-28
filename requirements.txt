@@ -1,1 +1,5 @@
-pygame
+pygame-ce>=2.5.5
+pygame-menu>=4.5.2
+pymunk>=7.1.0
+ptext>=1.1.0
+pygame-gui>=0.6.14

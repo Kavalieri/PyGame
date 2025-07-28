@@ -66,6 +66,9 @@ Cuando tengas que realizar copias de ficheros en massa, hazte un script temporal
 Disponemos de todos los assets disponibles en #codebase/full_assets aunque siempre podremos descargar elementos si los necesitas y conoces buenas fuentes. Para utilizar los assets, copiaremos los necesarios a la carpeta `assets` y haremos referencia a ellos desde ahí.
 No pares de trabajar hasta que se termine la tarea, no dejes nada a medias. Terminaremos todas las tareas arrancando el proyecto y asegurándonos de que todo funciona correctamente. Revisaremos la salida de la consola y los logs para asegurarnos de que no hay errores.
 Si no se indica contexto, asume que se trata de un proyecto de videojuegos en Python utilizando Pygame y que trabajamos sobre #codebase
+Añade líneas de control y debug y muéstralas por consola y regístralas en el log mediante el sistema que tenemos creado en el proyecto.
+Usaremos siempre que podamos y para facilitar el proyecto las herramientas de python pygame-menu o pygame-gui para TODOS los menus e interfaz según necesidad, pygame-tools para sus clases y elementos de  estructura y gestión y pygame-extra para todo aquello que podamos ahorrarnos.
+Usaremos pymunk para gestionar las físicas
 
 ## UI
 Corazones:
