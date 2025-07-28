@@ -5,8 +5,9 @@ logs/
 # Ignorar archivo de IA
 GEMINI.md
 
-# Ignorar el propio .gitignore
+# Ignorar el propio .gitignore y .gitattributes (solo si no afecta a la gestión de git)
 .gitignore
+.gitattributes
 
 # No ignorar docs/
 !docs/
@@ -23,5 +24,10 @@ __pycache__/
 !assets/
 
 # Ignorar saves y su contenido
-test_logs/
 saves/
+
+# Ignorar directorios de configuración de editores
+.vscode/
+.continue/
+
+test_logs/
