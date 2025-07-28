@@ -26,20 +26,18 @@ Juego 2D de disparos desarrollado con pygame-ce. El objetivo es destruir enemigo
    python src/main.py
    ```
 
+## Releases y ejecutable
+Puedes descargar la última versión del juego y su instalador `.exe` desde la sección [Releases](https://github.com/tu_usuario/PyGame/releases) del repositorio.
+
+- **Windows:** Descarga el archivo `.exe` y ejecútalo directamente, no requiere instalación adicional.
+- **Otras plataformas:** Usa el código fuente y sigue las instrucciones de instalación.
+
 ## Estructura del proyecto
 - `src/` - Código fuente principal
 - `assets/` - Assets en uso (imágenes, sonidos, fuentes)
 - `logs/` - Archivos de log generados automáticamente
 - `tools/` - Herramientas y scripts auxiliares
 - `docs/` - Documentación y colaboración
-
-## Changelog
-### 2024-12-19 (v2.0)
-- Migración completa a sistema de logging avanzado (Python logging)
-- Refactorización modular de todos los componentes
-- Menús avanzados y HUD profesional
-- Eliminación de código y logs obsoletos
-- Documentación y cabeceras actualizadas (autor: Kava)
 
 ## Contribución
 Las contribuciones son bienvenidas. Por favor, revisa `docs/COLABORACION.md` para las normas y recomendaciones de colaboración.
