@@ -93,14 +93,14 @@ ATTACK_TYPES = {
     "normal": {
         "projectile_size": 32,
         "projectile_speed": 10,
-        "image": "assets/images/objects/proyectiles/aranazo.png", # Usar sprite
+        "image": "assets/images/objects/proyectiles/Explosion_1.png", # Nuevo sprite
         "piercing": False,
         "damage": 1
     },
     "spread_shot": {
         "projectile_size": 32,
         "projectile_speed": 8,
-        "image": "assets/images/objects/proyectiles/aranazo2.png", # Usar sprite
+        "image": "assets/images/objects/proyectiles/Explosion_2.png", # Nuevo sprite
         "piercing": False,
         "damage": 1,
         "num_projectiles": 3,
@@ -109,7 +109,7 @@ ATTACK_TYPES = {
     "piercing_shot": {
         "projectile_size": 32,
         "projectile_speed": 12,
-        "image": "assets/images/objects/proyectiles/aranazo.png", # Usar sprite
+        "image": "assets/images/objects/proyectiles/Explosion_3.png", # Nuevo sprite
         "piercing": True,
         "damage": 2
     }

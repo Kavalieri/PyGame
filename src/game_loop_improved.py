@@ -130,54 +130,44 @@ class GameLoop:
         self.logger.log_event(f"Total de callbacks registrados: {len(callbacks)}", "menu")
     
     def run(self) -> None:
-        """Ejecuta el bucle principal del juego."""
+        """Ejecuta el bucle principal del juego (menús no bloqueantes)."""
         self.running = True
         self.logger.log_event("Iniciando bucle principal del juego", "game_loop")
         
         # Mostrar menú principal
         self.menu_system.show_main_menu()
         self.game_state = "menu"
+        # Guardar instancia global para callbacks
+        GameLoop.instance = self
         
         while self.running:
-            if self.game_state == "menu":
-                # En estado menú, pygame-menu maneja su propio bucle
-                self._run_menu_loop()
+            print(f"[DEBUG] game_state={self.game_state}, current_menu={self.menu_system.current_menu}")
+            if self.game_state == "menu" and self.menu_system.current_menu:
+                self._handle_menu_events_non_blocking()
             else:
-                # En estado juego, usar el bucle normal
                 self._handle_events()
                 self._update()
                 self._render()
                 self._update_fps()
-            
-            # Control de FPS
             self.clock.tick(FPS)
-        
         self.logger.log_event("Bucle principal terminado", "game_loop")
-    
-    def _run_menu_loop(self) -> None:
-        """Ejecuta el bucle de menús usando pygame-menu."""
-        if self.menu_system.current_menu:
-            try:
-                self.logger.log_debug(f"Ejecutando menú: {self.menu_system.current_menu.get_title()}", "menu")
-                # Usar el mainloop de pygame-menu directamente
-                action = self.menu_system.current_menu.mainloop(self.screen)
-                self.logger.log_event(f"Menú completado con acción: {action}", "menu")
-                
-                # Procesar la acción del menú
-                if action and action in self.menu_system.callbacks:
-                    self.logger.log_user_action(f"menu_action", {"action": action}, "menu")
-                    self.menu_system.callbacks[action]()
-                elif action == pygame_menu.events.EXIT:
-                    self.running = False
-                    self.logger.log_event("Saliendo del juego", "game_loop")
-                else:
-                    self.logger.log_warning(f"Acción no reconocida: {action}", "menu")
-                
-            except Exception as e:
-                self.logger.log_error(f"Error en menú: {e}", "menu", exc_info=True)
-                # En caso de error, volver al menú principal
-                self.game_state = "menu"
-                self.menu_system.show_main_menu()
+
+    def _handle_menu_events_non_blocking(self) -> None:
+        """Procesa eventos y dibuja el menú de forma no bloqueante."""
+        if not self.menu_system.current_menu:
+            return  # No hay menú activo, salir y permitir avanzar el flujo
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                self.running = False
+                self.logger.log_event("Evento QUIT recibido (menú)", "game_loop")
+                return
+        self.menu_system.current_menu.update(events)
+        # Comprobar si el menú sigue activo tras el update (puede haber sido cerrado por un callback)
+        if not self.menu_system.current_menu:
+            return
+        self.menu_system.current_menu.draw(self.screen)
+        pygame.display.flip()
     
     def _handle_events(self) -> None:
         """Maneja los eventos del juego."""
@@ -213,7 +203,8 @@ class GameLoop:
         """Maneja eventos de clics del ratón."""
         if self.game_state == "playing" and self.player:
             # Disparo del jugador
-            self._player_shoot()
+            mouse_x, mouse_y = event.pos if hasattr(event, 'pos') else pygame.mouse.get_pos()
+            self._player_shoot(mouse_x, mouse_y)
     
     def _update(self) -> None:
         """Actualiza la lógica del juego."""
@@ -227,17 +218,7 @@ class GameLoop:
         # Actualizar jugador
         if self.player:
             self.player.update()
-            
-            # Movimiento del jugador
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-                self.player.move_left()
-            if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-                self.player.move_right()
-            if keys[pygame.K_UP] or keys[pygame.K_w]:
-                self.player.move_up()
-            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-                self.player.move_down()
+            # El movimiento ya se gestiona en Player.update()
         
         # Actualizar enemigos
         for enemy in self.enemies[:]:
@@ -252,34 +233,48 @@ class GameLoop:
         for projectile in self.projectiles[:]:
             projectile.update()
             
+            # Añadir contador de colisiones para proyectiles perforantes
+            if not hasattr(projectile, 'piercing_hits'):
+                projectile.piercing_hits = 0
+            
             # Verificar colisiones con enemigos
             for enemy in self.enemies[:]:
-                if projectile.collides_with(enemy):
+                if projectile.get_collision_rect().colliderect(enemy.collision_box):
+                    self.logger.log_debug(f"Proyectil colisiona con enemigo en ({enemy.x},{enemy.y}) - Daño: {projectile.damage}", "game_loop")
                     enemy.take_damage(projectile.damage)
-                    if not projectile.piercing:
+                    if projectile.piercing:
+                        projectile.piercing_hits += 1
+                        if projectile.piercing_hits >= 2:  # Por ejemplo, atraviesa 2 enemigos máximo
+                            self.logger.log_debug("Proyectil perforante eliminado tras atravesar 2 enemigos.", "game_loop")
+                            self.projectiles.remove(projectile)
+                            break
+                    else:
+                        self.logger.log_debug("Proyectil eliminado tras colisión.", "game_loop")
                         self.projectiles.remove(projectile)
                         break
                     
                     if enemy.health <= 0:
+                        self.logger.log_event(f"Enemigo eliminado - Puntuación: {self.score}", "game_loop")
                         self.enemies.remove(enemy)
                         self.score += enemy.points
-                        self.logger.log_event(f"Enemigo eliminado - Puntuación: {self.score}", "game_loop")
             
             # Verificar si el proyectil salió de la pantalla
             if (projectile.y < 0 or projectile.y > SCREEN_HEIGHT or 
                 projectile.x < 0 or projectile.x > SCREEN_WIDTH):
                 if projectile in self.projectiles:
+                    self.logger.log_debug("Proyectil eliminado por salir de pantalla.", "game_loop")
                     self.projectiles.remove(projectile)
         
         # Actualizar powerups
         for powerup in self.powerups[:]:
             powerup.update()
             
-            # Verificar colisión con jugador
-            if self.player and powerup.collides_with(self.player):
-                self.player.activate_powerup(powerup.type)
-                self.powerups.remove(powerup)
-                self.logger.log_event(f"Powerup activado: {powerup.type}", "game_loop")
+            # Verificar colisiones con power-ups
+            for powerup in self.powerups[:]:
+                if self.player and powerup.get_collision_rect().colliderect(self.player.collision_box):
+                    self.player.activate_powerup(powerup.type)
+                    self.powerups.remove(powerup)
+                    self.logger.log_event(f"PowerUp recogido: {powerup.type}", "game_loop")
             
             # Verificar si el powerup salió de la pantalla
             if powerup.y > SCREEN_HEIGHT:
@@ -288,7 +283,7 @@ class GameLoop:
         # Verificar colisiones jugador-enemigos
         if self.player:
             for enemy in self.enemies[:]:
-                if self.player.collides_with(enemy):
+                if self.player.collision_box.colliderect(enemy.collision_box):
                     self.player.take_damage(enemy.damage)
                     self.enemies.remove(enemy)
                     self.logger.log_event("Jugador dañado por enemigo", "game_loop")
@@ -305,7 +300,9 @@ class GameLoop:
             self._end_level()
         
         # Generar enemigos
-        self.enemy_generator.update(self.enemies, self.level)
+        nuevos_enemigos = self.enemy_generator.generate_enemies(self.score)
+        if nuevos_enemigos:
+            self.enemies.extend(nuevos_enemigos)
         
         # Generar powerups aleatorios
         if current_time - self.last_powerup_time > 10:  # Cada 10 segundos
@@ -323,25 +320,18 @@ class GameLoop:
     
     def _render_game(self) -> None:
         """Renderiza el juego durante la partida."""
-        # Limpiar pantalla
         self.screen.fill((0, 0, 0))
-        
-        # Renderizar fondo (si existe)
-        # self.screen.blit(self.background, (0, 0))
-        
+        if hasattr(self, 'debug_mode') and self.debug_mode:
+            print(f"[DEBUG] Renderizando juego. Jugador: {self.player}, Enemigos: {len(self.enemies)}, Proyectiles: {len(self.projectiles)}")
         # Renderizar entidades
         if self.player:
             self.player.draw(self.screen)
-        
         for enemy in self.enemies:
             enemy.draw(self.screen)
-        
         for projectile in self.projectiles:
             projectile.draw(self.screen)
-        
         for powerup in self.powerups:
             powerup.draw(self.screen)
-        
         # Renderizar HUD
         lives = self.player.lives if self.player else 0
         shield_lives = self.player.shield_lives if self.player and hasattr(self.player, 'shield_lives') else 0
@@ -350,12 +340,12 @@ class GameLoop:
         time_remaining = max(0, self.level_duration - self.level_time)
         active_powerups = self.active_powerups
         self.hud.draw(lives, shield_lives, score, current_level, time_remaining, active_powerups)
-        
-        # Renderizar información de debug
+        # Renderizar información de debug visual
         if hasattr(self, 'debug_mode') and self.debug_mode:
-            self._render_debug_info()
-        
-        # Actualizar pantalla
+            font = pygame.font.SysFont('Arial', 18)
+            debug_text = f"DEBUG: Jugador={self.player}, Enemigos={len(self.enemies)}, Proyectiles={len(self.projectiles)}, Powerups={len(self.powerups)}"
+            text_surface = font.render(debug_text, True, (255,255,0))
+            self.screen.blit(text_surface, (10, 10))
         pygame.display.flip()
     
     def _render_menu(self) -> None:
@@ -424,34 +414,36 @@ class GameLoop:
             self.last_fps_update = current_time
     
     def _start_new_game(self) -> None:
-        """Inicia una nueva partida."""
+        """Inicia una nueva partida (solo muestra el menú de selección de personajes)."""
         self.logger.log_event("Iniciando nueva partida", "game_loop")
         self.menu_system.show_character_selection()
+        # No cambiar el estado ni limpiar entidades aquí
     
     def _select_character(self, character_name: str) -> None:
         """Selecciona un personaje y inicia el juego."""
         self.logger.log_event(f"Personaje seleccionado: {character_name}", "game_loop")
-        
+        if hasattr(self, 'debug_mode') and self.debug_mode:
+            print(f"[DEBUG] Seleccionando personaje: {character_name}")
         # Crear jugador según el personaje seleccionado
         self.player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100, self.logger, self.sound_manager, character_name)
-        
+        if hasattr(self, 'debug_mode') and self.debug_mode:
+            print(f"[DEBUG] Jugador creado: {self.player}")
         # Inicializar juego
         self.score = 0
         self.level = 1
         self.level_start_time = time.time()
         self.last_powerup_time = time.time()
-        
         # Limpiar entidades
         self.enemies.clear()
         self.projectiles.clear()
         self.powerups.clear()
-        
         # Cambiar estado
         self.game_state = "playing"
         self.menu_system.clear_stack()
-        
         self.logger.log_event("Juego iniciado", "game_loop")
-    
+        if hasattr(self, 'debug_mode') and self.debug_mode:
+            print(f"[DEBUG] Estado cambiado a 'playing'. Jugador y entidades inicializadas.")
+
     def _pause_game(self) -> None:
         """Pausa el juego."""
         if self.game_state == "playing":
@@ -500,10 +492,12 @@ class GameLoop:
         self.game_state = "game_over"
         self.menu_system.show_game_over(self.score)
     
-    def _player_shoot(self) -> None:
+    def _player_shoot(self, target_x=None, target_y=None) -> None:
         """Hace que el jugador dispare."""
         if self.player and not self.paused:
-            projectiles = self.player.shoot()
+            if target_x is None or target_y is None:
+                target_x, target_y = pygame.mouse.get_pos()
+            projectiles = self.player.shoot(target_x, target_y)
             self.projectiles.extend(projectiles)
             self.sound_manager.play_sound("shoot")
     
@@ -565,8 +559,11 @@ class GameLoop:
             self.logger.log_event("Partida guardada", "game_loop")
     
     def _show_options(self) -> None:
-        """Muestra el menú de opciones."""
-        self.menu_system.show_options()
+        """Muestra el menú de opciones (solo una vez, permite volver atrás)."""
+        # Solo mostrar el menú de opciones, no reabrirlo en cada callback
+        if self.game_state != "options":
+            self.game_state = "options"
+            self.menu_system.show_options()
     
     def _show_credits(self) -> None:
         """Muestra los créditos."""
@@ -657,14 +654,10 @@ class GameLoop:
     def cleanup(self) -> None:
         """Limpia los recursos del juego."""
         self.logger.log_event("Limpiando recursos del juego", "game_loop")
-        
         # Limpiar managers
-        self.animation_manager.clear_all()
         self.text_renderer.clear_cache()
-        
         # Limpiar entidades
         self.enemies.clear()
         self.projectiles.clear()
         self.powerups.clear()
-        
         self.logger.log_event("Recursos limpiados", "game_loop") 

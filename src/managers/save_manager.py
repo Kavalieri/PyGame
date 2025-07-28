@@ -20,6 +20,7 @@ class SaveManager:
         return os.path.join(self.save_dir, f"save_slot_{slot}.json")
 
     def save_game(self, slot, game_state):
+        print(f"[DEBUG] Guardando partida en slot {slot}: {game_state}")
         path = self._get_save_path(slot)
         try:
             with open(path, "w") as f:
@@ -31,6 +32,7 @@ class SaveManager:
             return False
 
     def load_game(self, slot):
+        print(f"[DEBUG] Cargando partida desde slot {slot}")
         path = self._get_save_path(slot)
         if not os.path.exists(path):
             self.logger.log_warning(f"No hay datos guardados en el slot {slot}", "save")

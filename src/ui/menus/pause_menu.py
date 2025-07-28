@@ -17,10 +17,10 @@ class PauseMenu(BaseMenu):
             {"text": "Salir del Juego", "action": "exit"}
         ]
         super().__init__(screen, logger, title_text="PAUSA", options=options, 
-                         background_image_path="assets/images/fondos/parque.jpg",
+                         background_image_path=None,
                          button_images={
-                             'normal': "assets/images/ui/Buttons/Blue/Blank 1.png",
-                             'hover': "assets/images/ui/Buttons/Blue/Blank 2.png"
+                             'normal': "assets/images/ui/Buttons/Blue/Resume 1.png",
+                             'hover': "assets/images/ui/Buttons/Blue/Resume 2.png"
                          })
         self.logger.log_debug("Menú de pausa inicializado.")
 

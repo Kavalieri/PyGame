@@ -14,11 +14,11 @@ class Menu(BaseMenu):
             {"text": "Guardar Juego", "action": "save_game"},
             {"text": "Salir", "action": "exit"}
         ]
-        super().__init__(screen, logger, title_text="Juego Modularizado", options=main_menu_options,
-                         background_image_path="assets/images/fondos/parque.jpg",
+        super().__init__(screen, logger, title_text="PyGame Shooter", options=main_menu_options,
+                         background_image_path=None,
                          button_images={
-                             'normal': "assets/images/ui/Buttons/Blue/Blank 1.png",
-                             'hover': "assets/images/ui/Buttons/Blue/Blank 2.png"
+                             'normal': "assets/images/ui/Buttons/Blue/New Game 1.png",
+                             'hover': "assets/images/ui/Buttons/Blue/New Game 2.png"
                          })
 
     def show(self, message=None):

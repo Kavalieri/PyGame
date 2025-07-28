@@ -10,12 +10,13 @@ import math
 from utils.advanced_logger import get_logger
 
 class Projectile:
-    def __init__(self, x, y, target_x, target_y, size=10, speed=5, image_path=None, piercing=False, logger=None):
+    def __init__(self, x, y, target_x, target_y, size=10, speed=5, image_path=None, piercing=False, damage=1, logger=None):
         self.x = x
         self.y = y
         self.size = size
         self.speed = speed
         self.piercing = piercing
+        self.damage = damage
         self.logger = logger or get_logger("PyGame")
         
         # Calcular dirección hacia el objetivo
@@ -45,6 +46,9 @@ class Projectile:
         self.color = (255, 255, 0)  # Amarillo
         
         self.logger.log_debug(f"Proyectil creado en ({x}, {y}) hacia ({target_x}, {target_y}) con velocidad {speed}", "projectile")
+        if self.logger:
+            self.logger.log_event(f"Proyectil inicializado en ({self.x},{self.y})", "projectile")
+        print(f"[DEBUG] Proyectil inicializado: {self}")
     
     def update(self):
         """Actualiza la posición del proyectil."""
@@ -57,6 +61,7 @@ class Projectile:
             screen.blit(self.image, (self.x, self.y))
         else:
             pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.size // 2)
+        print(f"[DEBUG] Dibujando proyectil en ({self.x},{self.y})")
     
     def is_off_screen(self, screen_width, screen_height):
         """Verifica si el proyectil está fuera de la pantalla."""

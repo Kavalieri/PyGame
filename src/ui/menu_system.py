@@ -96,6 +96,7 @@ class MenuSystem:
     
     def create_character_selection_menu(self) -> pygame_menu.Menu:
         """Crea el menú de selección de personajes."""
+        print("[DEBUG] Creando menú de selección de personajes...")
         menu = pygame_menu.Menu(
             title='Seleccionar Personaje',
             width=SCREEN_WIDTH,
@@ -112,16 +113,16 @@ class MenuSystem:
         }
         
         for character_name, description in characters.items():
+            print(f"[DEBUG] Añadiendo personaje: {character_name} - {description}")
             frame = menu.add.frame_h(600, 100, background_color=(50, 50, 50, 150))
             frame._relax = True  # Permitir widgets más grandes que el frame
             frame.pack(menu.add.label(character_name, font_size=20))
             frame.pack(menu.add.label(description, font_size=15))
             frame.pack(menu.add.button('Seleccionar', 
                                      self._callback_wrapper('select_character', character_name)))
-        
         menu.add.button('Volver', self._callback_wrapper('back_to_main'))
-        
         self.logger.log_event("Menú de selección de personajes creado", "menu")
+        print("[DEBUG] Menú de selección de personajes creado y retornado.")
         return menu
     
     def create_pause_menu(self) -> pygame_menu.Menu:
@@ -277,7 +278,18 @@ class MenuSystem:
                 self.callbacks[action](*args)
             else:
                 self.logger.log_warning(f"Callback no registrado: {action}", "menu")
-        
+            # Solo eliminar el menú actual en acciones de avance/cierre
+            if action in ['select_character', 'back_to_main', 'main_menu', 'continue_game', 'resume_game', 'upgrade', 'reset_upgrades', 'apply_options', 'credits', 'options', 'save_game', 'load_game', 'load_slot', 'save_slot']:
+                self.current_menu = None
+            # Cambiar el estado del juego si corresponde
+            from game_loop_improved import GameLoop
+            if hasattr(GameLoop, 'instance') and GameLoop.instance:
+                if action in ['select_character', 'load_slot', 'continue_game']:
+                    GameLoop.instance.game_state = 'playing'
+                elif action in ['pause_game']:
+                    GameLoop.instance.game_state = 'paused'
+                elif action in ['main_menu', 'back_to_main']:
+                    GameLoop.instance.game_state = 'menu'
         return callback
     
     def register_callback(self, action: str, callback: Callable) -> None:
@@ -298,8 +310,10 @@ class MenuSystem:
     
     def show_character_selection(self) -> None:
         """Muestra el menú de selección de personajes."""
+        print("[DEBUG] show_character_selection() llamado")
         menu = self.create_character_selection_menu()
         self.show_menu(menu)
+        print(f"[DEBUG] current_menu asignado: {self.current_menu}")
     
     def show_pause_menu(self) -> None:
         """Muestra el menú de pausa."""

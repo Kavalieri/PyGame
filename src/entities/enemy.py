@@ -37,6 +37,10 @@ class Enemy:
         self.health = int(self.base_health * rarity_stats["health_multiplier"])
         self.score_value = int(10 * rarity_stats["score_multiplier"]) # Valor de puntuación base 10
 
+        # Daño base
+        self.base_damage = stats.get("damage", 1)
+        self.damage = int(self.base_damage * rarity_stats.get("damage_multiplier", 1.0))
+
         self.collision_box = pygame.Rect(self.x, self.y, self.size, self.size)
 
         # Para movimiento zigzag
@@ -78,6 +82,9 @@ class Enemy:
 
         self.logger.log_debug(f"Enemigo {enemy_type} ({rarity}) creado en posición x={self.x}, y={self.y}, tamaño={self.size}, velocidad={self.speed}, salud={self.health}, can_shoot={self.can_shoot}", "enemy")
         self.logger.log_debug(f"Health frame image: {self.health_frame_image}, Health bar image: {self.health_bar_image}", "enemy")
+        if self.logger:
+            self.logger.log_event(f"Enemigo inicializado en ({self.x},{self.y}) tipo={enemy_type} rareza={rarity}", "enemy")
+        print(f"[DEBUG] Enemigo inicializado: {self}")
 
     def move(self):
         """Mueve el enemigo según su patrón de movimiento."""
@@ -131,6 +138,7 @@ class Enemy:
         else:
             # Fallback si no hay imagen
             pygame.draw.rect(screen, RED, (self.x, self.y, self.size, self.size))
+        print(f"[DEBUG] Dibujando enemigo en ({self.x},{self.y})")
 
         # Dibujar barra de vida
         self.draw_health_bar(screen)
@@ -142,6 +150,9 @@ class Enemy:
         bar_x = self.x + (self.size - bar_width) // 2
         bar_y = self.y - 15
 
+        # DEBUG: Dibujar fondo de la barra de vida
+        pygame.draw.rect(screen, (200, 200, 200), (bar_x, bar_y, bar_width, bar_height), border_radius=4)
+
         # Dibujar marco de la barra de vida
         screen.blit(self.health_frame_image, (bar_x, bar_y))
 
@@ -149,6 +160,8 @@ class Enemy:
         max_health = self.base_health * ENEMY_RARITIES.get(self.rarity, ENEMY_RARITIES["NORMAL"])["health_multiplier"]
         health_ratio = max(0, self.health / max_health)
         current_bar_width = int(bar_width * health_ratio)
+
+        print(f"[DEBUG] Enemy health: {self.health}, max_health: {max_health}, ratio: {health_ratio}")
 
         if current_bar_width > 0:
             # Crear una superficie para la barra de vida

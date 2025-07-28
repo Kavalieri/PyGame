@@ -46,6 +46,10 @@ class Player:
         self.attack_type = "normal" # Default attack type
         self.projectile_speed = PROJECTILE_SPEED # Inicializar con la constante
 
+        if self.logger:
+            self.logger.log_event(f"Jugador inicializado en ({self.x},{self.y}) tipo={character_type}", "player")
+        print(f"[DEBUG] Jugador inicializado: {self}")
+
     def set_character_stats(self, character_type):
         stats = CHARACTER_STATS.get(character_type, CHARACTER_STATS["Kava"]) # Cambiado a Kava
         self.speed = stats["speed"]
@@ -140,13 +144,15 @@ class Player:
             projectile = Projectile(self.x + self.size // 2, self.y, target_x, target_y, 
                                     size=projectile_size, speed=projectile_speed, 
                                     image_path=projectile_image_path, piercing=projectile_piercing, 
-                                    logger=self.logger)
+                                    damage=projectile_damage, logger=self.logger)
             self.projectiles.append(projectile)
 
             self.logger.log_debug(f"Jugador disparó proyectil hacia x={target_x}, y={target_y} con ataque {self.attack_type}", "player")
             if self.sound_manager:
                 self.sound_manager.play_sound("shoot")
             self.last_shot_time = current_time
+            return [projectile]
+        return []
 
     def draw(self, screen):
         # Dibujar el sprite actual del jugador
@@ -155,6 +161,7 @@ class Player:
         if self.facing_left:
             scaled_image = pygame.transform.flip(scaled_image, True, False)
         screen.blit(scaled_image, (self.x, self.y))
+        print(f"[DEBUG] Dibujando jugador en ({self.x},{self.y})")
 
         if self.has_shield:
             pygame.draw.circle(screen, BLUE, (int(self.x + self.size / 2), int(self.y + self.size / 2)), self.size, 3) # Dibujar escudo
@@ -172,6 +179,11 @@ class Player:
         if self.lives > 0:
             self.lives -= amount
             self.logger.log_event(f"Jugador pierde vida. Vidas restantes: {self.lives}", "player")
+
+    def take_damage(self, amount=1):
+        """Aplica daño al jugador, gestionando escudo y vidas."""
+        self.logger.log_event(f"Jugador recibe daño: {amount}", "player")
+        self.lose_life(amount)
 
     def activate_powerup(self, powerup_type):
         if powerup_type == "health":

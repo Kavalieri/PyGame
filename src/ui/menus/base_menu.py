@@ -8,13 +8,15 @@
 import pygame
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE, BLACK, FONT_SIZE, FONT_COLOR, BUTTON_COLOR, HOVER_COLOR
 from utils.image_loader import load_image
+import os
 
 class BaseMenu:
     def __init__(self, screen, logger, title_text="Menú", options=None, background_image_path=None, button_images=None):
         self.screen = screen
         self.logger = logger
-        self.font = pygame.font.Font(None, FONT_SIZE * 2)
-        self.options_font = pygame.font.Font(None, FONT_SIZE)
+        # Usar fuente arcade
+        self.font = pygame.font.Font(os.path.join("assets", "fonts", "arcade.ttf"), FONT_SIZE * 2)
+        self.options_font = pygame.font.Font(os.path.join("assets", "fonts", "arcade.ttf"), FONT_SIZE)
         self.title_text_surface = self.font.render(title_text, True, FONT_COLOR)
         self.title_rect = self.title_text_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4))
 
@@ -26,6 +28,10 @@ class BaseMenu:
         if background_image_path:
             self.background_image = load_image(background_image_path)
             self.background_image = pygame.transform.scale(self.background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        else:
+            # Fondo por defecto espectacular
+            self.background_image = load_image("assets/images/fondos/game_background_1_dark.png")
+            self.background_image = pygame.transform.scale(self.background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
         self.button_images = {
             'normal': None,
@@ -34,8 +40,13 @@ class BaseMenu:
         if button_images:
             if 'normal' in button_images: self.button_images['normal'] = load_image(button_images['normal'])
             if 'hover' in button_images: self.button_images['hover'] = load_image(button_images['hover'])
+        else:
+            # Botón visual por defecto
+            self.button_images['normal'] = load_image("assets/images/ui/Buttons/Blue/Blank 1.png")
+            self.button_images['hover'] = load_image("assets/images/ui/Buttons/Blue/Blank 2.png")
 
         self._setup_buttons()
+        self.menu_alpha = 0  # Para animación de entrada
 
     def _setup_buttons(self):
         pass
@@ -68,10 +79,13 @@ class BaseMenu:
         return None
 
     def _draw(self):
-        if self.background_image:
-            self.screen.blit(self.background_image, (0, 0))
-        else:
-            self.screen.fill(BLACK)
+        # Animación de entrada (fade in)
+        if self.menu_alpha < 255:
+            self.menu_alpha += 10
+        temp_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        temp_surface.blit(self.background_image, (0, 0))
+        temp_surface.set_alpha(self.menu_alpha)
+        self.screen.blit(temp_surface, (0, 0))
 
         self.screen.blit(self.title_text_surface, self.title_rect)
 
@@ -91,6 +105,8 @@ class BaseMenu:
             if i == self.selected_option_index:
                 button_image = self.button_images['hover'] if self.button_images['hover'] else None
                 color = HOVER_COLOR
+                # Efecto de brillo
+                pygame.draw.rect(self.screen, (255,255,100), button_rect.inflate(10,10), border_radius=16)
             else:
                 button_image = self.button_images['normal'] if self.button_images['normal'] else None
                 color = BUTTON_COLOR

@@ -27,7 +27,9 @@ class PowerUp:
         
         self.color = self.colors.get(powerup_type, (255, 255, 255))  # Blanco por defecto
         
-        self.logger.log_debug(f"PowerUp {powerup_type} creado en posición ({x}, {y})", "powerup")
+        if self.logger:
+            self.logger.log_event(f"PowerUp inicializado en ({self.x},{self.y}) tipo={powerup_type}", "powerup")
+        print(f"[DEBUG] PowerUp inicializado: {self}")
     
     def update(self):
         """Actualiza la posición del powerup."""
@@ -35,6 +37,7 @@ class PowerUp:
     
     def draw(self, screen):
         """Dibuja el powerup."""
+        print(f"[DEBUG] Dibujando powerup en ({self.x},{self.y})")
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.size // 2)
         
         # Dibujar un borde para hacerlo más visible
